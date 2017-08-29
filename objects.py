@@ -11,7 +11,9 @@ class SquishSprite(pygame.sprite.Sprite):
 
     def __init__(self, image):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(image).convert()
+        self.image = pygame.image.load(image).convert_alpha()
+        width, height = self.image.get_size()
+        self.image = pygame.transform.smoothscale(self.image, (width/2, height/2))
         self.rect = self.image.get_rect()
         screen = pygame.display.get_surface()
         shrink = -config.margin * 2

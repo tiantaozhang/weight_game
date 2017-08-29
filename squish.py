@@ -96,11 +96,12 @@ class Level(State):
     def __init__(self, number=1):
         self.number = number
         self.remaining = config.weights_per_level
-
+        self.first = True
         speed = config.drop_speed
         speed += (self.number - 1) * config.speed_increase
 
         self.weight = objects.Weight(speed)
+        self.weight2 = objects.Weight(speed)
         self.banana = objects.Banana()
 
         both = self.weight, self.banana
@@ -109,12 +110,24 @@ class Level(State):
     def update(self, game):
         self.sprites.update()
         if self.banana.touches(self.weight):
-            game.exitState = GameOver()
+            game.nextState = GameOver()
         elif self.weight.landed:
             self.weight.reset()
             self.remaining -= 1
             if self.remaining == 0:
                 game.nextState = LevelCleared(self.number)
+
+        if not self.first:
+            if self.weight2.landed:
+                self.weight2.reset()
+                self.remaining -= 1
+                if self.remaining == 0:
+                    game.nextState = LevelCleared(self.number)
+
+        if self.weight.rect.top > self.weight.area.bottom / 2:
+            both = self.weight, self.banana, self.weight2
+            self.sprites = pygame.sprite.RenderUpdates(both)
+            self.first = False
 
     def display(self, screen):
         screen.fill(config.background_color)
